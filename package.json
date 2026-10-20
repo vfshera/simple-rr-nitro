@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.mjs",
+    "start": "node ./build/server/index.mjs",
     "typecheck": "react-router typegen && tsc",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
@@ -15,7 +15,6 @@
   "dependencies": {
     "@react-router/fs-routes": "^8.4.0",
     "@react-router/node": "^8.4.0",
-    "@react-router/serve": "^8.4.0",
     "evlog": "^2.33.1",
     "isbot": "^5.2.2",
     "nitro": "3.0.260903-beta",
