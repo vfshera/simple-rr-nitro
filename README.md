@@ -1,87 +1,76 @@
-# Welcome to React Router!
+# simple-rr-nitro
 
-A modern, production-ready template for building full-stack React applications using React Router.
+React Router 8 app with SSR, served by Nitro 3. Structured request logging
+comes from evlog, styling from Tailwind 4, and the build from Vite 8.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Requirements
 
-## Features
+- Node 24+
+- pnpm 12+
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
-
-## Getting Started
-
-### Installation
-
-Install the dependencies:
+## Getting started
 
 ```bash
-npm install
+pnpm install
+pnpm dev          # http://localhost:5173
 ```
 
-### Development
+## Scripts
 
-Start the development server with HMR:
+| Script           | What it does                                         |
+| ---------------- | ---------------------------------------------------- |
+| `pnpm dev`       | Vite dev server with HMR                             |
+| `pnpm build`     | Client, SSR, and Nitro server bundles into `build/`  |
+| `pnpm start`     | Run the built server (`node build/server/index.mjs`) |
+| `pnpm typecheck` | Route typegen + `tsc`                                |
+| `pnpm lint`      | Lint with oxlint                                     |
+| `pnpm lint:fix`  | Lint and apply oxlint fixes                          |
+| `pnpm fmt`       | Format with oxfmt                                    |
+| `pnpm fmt:check` | Check formatting without writing                     |
 
-```bash
-npm run dev
+## Project structure
+
+```text
+app/
+  root.tsx            document shell and error boundary
+  routes.ts           flat file route config
+  routes/_index.tsx   home route with a loader
+  app.css             Tailwind entry
+server/
+  ssr.ts              React Router handler exposed as a Nitro fetch handler
+  routes/             Nitro API routes (health.get.ts -> GET /health)
+build/                Nitro output: client/ and server/
 ```
 
-Your application will be available at `http://localhost:5173`.
+## How it fits together
 
-## Building for Production
+Vite runs three plugins in order: Tailwind, React Router, then Nitro. React
+Router builds the client and the SSR bundle from `server/ssr.ts`; Nitro bundles
+that entry alongside its own API routes and emits a node-server preset to
+`build/server`. Requests hit Nitro first, so `/health` is handled there while
+everything else falls through to React Router.
 
-Create a production build:
+| File                     | Purpose                                     |
+| ------------------------ | ------------------------------------------- |
+| `vite.config.ts`         | Plugin order, SSR input, Nitro output paths |
+| `react-router.config.ts` | SSR on, `buildDirectory: "build"`           |
+| `nitro.config.ts`        | Registers the evlog module                  |
+| `evlog.config.ts`        | Service name (`rr-nitro-app`)               |
 
-```bash
-npm run build
+## Logging
+
+`server/routes/health.get.ts` shows the pattern:
+
+```ts
+const log = useLogger(ev);
+
+log.info("Health check");
 ```
 
-## Deployment
+Logs are emitted through evlog's Nitro module. The server reads `PORT`
+(default 3000) and `HOST` from the environment.
 
-### Docker Deployment
+## Code quality
 
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+oxlint and oxfmt handle linting and formatting; lefthook runs both on staged
+files before each commit.
