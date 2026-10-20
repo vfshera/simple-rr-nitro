@@ -1,0 +1,55 @@
+import { defineConfig } from "oxfmt";
+
+export default defineConfig({
+  sortImports: {
+    newlinesBetween: false,
+    internalPattern: ["~/**", "$/**"],
+    customGroups: [
+      {
+        groupName: "route-types",
+        elementNamePattern: ["**/+types/**"],
+      },
+      {
+        groupName: "react",
+        elementNamePattern: ["react"],
+      },
+      {
+        groupName: "react-router",
+        elementNamePattern: [
+          "react-router",
+          "react-router*",
+          "@react-router/*",
+        ],
+      },
+      {
+        groupName: "server-modules",
+        elementNamePattern: ["**/*.server*", "**/.server/**"],
+      },
+      {
+        groupName: "client-modules",
+        elementNamePattern: ["**/*.client.*", "**/.client/**"],
+      },
+    ],
+    groups: [
+      "route-types",
+      "react",
+      "react-router",
+      ["value-external"],
+      "server-modules",
+      "client-modules",
+      ["value-internal"],
+      ["value-parent", "value-sibling", "value-index"],
+      [
+        "type-external",
+        "type-internal",
+        "type-parent",
+        "type-sibling",
+        "type-index",
+      ],
+      "unknown",
+    ],
+  },
+  printWidth: 80,
+  sortPackageJson: true,
+  ignorePatterns: [],
+});
